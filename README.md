@@ -1,90 +1,90 @@
-# Mini Plausible
+﻿# Mini Plausible
 
-A lightweight, privacy-first web analytics platform — a self-hosted alternative to Plausible Analytics.
+一款轻量级、隐私优先的 Web 分析平台——可自托管的 Plausible Analytics 替代方案。
 
-## Overview
+## 概述
 
-Mini Plausible tracks pageviews and custom events without cookies, IP addresses, or personal data collection. The entire analytics pipeline runs on your own infrastructure, giving you full control over visitor data.
+Mini Plausible 以无 Cookie、无 IP 追踪、不收集个人数据的方式追踪页面浏览和自定义事件。整个分析管线运行在你自己的基础设施上，让你完全掌控访客数据。
 
-## Features
+## 功能特性
 
-- **Privacy-first**: No cookies, no IP tracking, GDPR/CCPA compliant by default
-- **Lightweight SDK**: <5 KB minified client-side tracking script
-- **Event batching**: Efficient network usage with batched event delivery
-- **UTM tracking**: Automatic extraction of UTM campaign parameters
-- **Device detection**: Browser, OS, and device type identification from user agent
-- **Session tracking**: Visitor sessions with bounce rate and duration metrics
-- **Funnel analysis**: Multi-step conversion funnels with drop-off rates
-- **Real-time analytics**: Live visitor counts and pageview streams
-- **Daily aggregation**: Pre-computed daily aggregates for fast queries
-- **Custom events**: Track any event with arbitrary properties
-- **JWT authentication**: Secure API access with token-based auth
-- **Docker-ready**: Production deployment with Docker Compose
-- **SQLite + PostgreSQL**: Works with SQLite for dev and PostgreSQL for production
+- **隐私优先**：无 Cookie、无 IP 追踪，默认符合 GDPR/CCPA
+- **轻量级 SDK**：压缩后不到 5KB 的客户端追踪脚本
+- **事件批处理**：高效的批量事件投递，减少网络开销
+- **UTM 追踪**：自动提取 UTM 营销活动参数
+- **设备检测**：通过 User Agent 识别浏览器、操作系统和设备类型
+- **会话追踪**：访客会话管理，包含跳出率和停留时长指标
+- **漏斗分析**：多步骤转化漏斗，附带流失率
+- **实时分析**：实时访客计数和页面浏览流
+- **每日聚合**：预计算的日聚合数据，加速查询
+- **自定义事件**：支持任意属性的事件追踪
+- **JWT 认证**：基于令牌的安全 API 访问
+- **Docker 就绪**：通过 Docker Compose 一键部署
+- **SQLite + PostgreSQL**：开发环境使用 SQLite，生产环境使用 PostgreSQL
 
-## Quick Start
+## 快速开始
 
-### Prerequisites
+### 环境要求
 
 - Node.js 20+
 - npm
 
-### Local Development
+### 本地开发
 
 ```bash
-# Install dependencies
+# 安装依赖
 npm install
 
-# Generate Prisma client
+# 生成 Prisma Client
 npx prisma generate
 
-# Push database schema
+# 推送数据库 Schema
 npx prisma db push
 
-# Seed demo data
+# 初始化演示数据
 npm run db:seed
 
-# Start development server
+# 启动开发服务器
 npm run dev
 ```
 
-The server starts at `http://localhost:3000`.
+服务器将在 `http://localhost:3000` 启动。
 
-### Docker
+### Docker 部署
 
 ```bash
-# Build and start all services
+# 构建并启动所有服务
 docker compose up -d
 
-# Run database migrations
+# 运行数据库迁移
 docker compose exec app npx prisma db push
 
-# Seed demo data
+# 初始化演示数据
 docker compose exec app npm run db:seed
 ```
 
-## API Documentation
+## API 文档
 
-### Authentication
+### 认证
 
-Most endpoints require a JWT token. Get one via the auth endpoint:
+大部分端点需要 JWT 令牌。通过认证端点获取：
 
 ```bash
-# Register
+# 注册
 curl -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@example.com","password":"password123","name":"Admin"}'
 
-# Login
+# 登录
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@example.com","password":"password123"}'
 ```
 
-### Collect Events
+### 采集事件
 
 ```bash
-# Single event
+# 单事件采集
 curl -X POST http://localhost:3000/api/event \
   -H "Content-Type: application/json" \
   -d '{
@@ -98,26 +98,26 @@ curl -X POST http://localhost:3000/api/event \
   }'
 ```
 
-### Analytics Queries
+### 分析查询
 
 ```bash
-# Get analytics for a site
+# 获取站点分析数据
 curl http://localhost:3000/api/analytics/SITE_ID?period=30d \
   -H "Authorization: Bearer YOUR_TOKEN"
 
-# Available periods: realtime, 7d, 30d, 90d, custom
+# 可用周期：realtime、7d、30d、90d、custom
 ```
 
-### Funnel Analysis
+### 漏斗分析
 
 ```bash
-# Create and query a funnel
+# 创建并查询漏斗
 curl -X POST http://localhost:3000/api/analytics/funnels \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "siteId": "your-site-id",
-    "name": "Signup Funnel",
+    "name": "注册漏斗",
     "steps": [
       {"type": "page", "value": "/"},
       {"type": "event", "value": "Signup"},
@@ -126,9 +126,9 @@ curl -X POST http://localhost:3000/api/analytics/funnels \
   }'
 ```
 
-## SDK Integration
+## SDK 集成
 
-### Script Tag (recommended)
+### Script 标签（推荐）
 
 ```html
 <script
@@ -139,7 +139,7 @@ curl -X POST http://localhost:3000/api/analytics/funnels \
 ></script>
 ```
 
-### Custom Events
+### 自定义事件
 
 ```javascript
 plausible('Signup', { props: { plan: 'pro' } });
@@ -152,72 +152,72 @@ plausible('Purchase', { props: { amount: 49.99, currency: 'USD' } });
 cd sdk && npm install && npm run build
 ```
 
-The built `sdk/dist/plausible.min.js` can be served from your own domain.
+构建产物 `sdk/dist/plausible.min.js` 可从你自己的域名托管。
 
-## Project Structure
+## 项目结构
 
 ```
 mini-plausible/
 ├── src/
-│   ├── index.ts              # Server entry point
-│   ├── app.ts                # Express app setup
+│   ├── index.ts              # 服务端入口
+│   ├── app.ts                # Express 应用配置
 │   ├── middleware/
-│   │   └── auth.ts           # JWT auth middleware
+│   │   ├── auth.ts           # JWT 认证中间件
 │   ├── routes/
-│   │   ├── analytics.ts      # Analytics query endpoints
-│   │   ├── auth.ts           # Register / login
-│   │   ├── collect.ts        # Event ingestion
-│   │   ├── funnels.ts        # Funnel CRUD + analysis
-│   │   ├── sites.ts          # Site management
+│   │   ├── analytics.ts      # 分析查询端点
+│   │   ├── auth.ts           # 注册 / 登录
+│   │   ├── collect.ts        # 事件采集
+│   │   ├── funnels.ts        # 漏斗 CRUD + 分析
+│   │   ├── sites.ts          # 站点管理
 │   │   └── ...
 │   ├── services/
-│   │   ├── pipeline.ts       # Event queue + batch inserts
-│   │   ├── aggregation.ts    # Daily aggregate computation
-│   │   ├── funnel.ts         # Funnel calculation engine
-│   │   ├── query-builder.ts  # Analytics query construction
-│   │   ├── embed.ts          # Embed script generation
+│   │   ├── pipeline.ts       # 事件队列 + 批量插入
+│   │   ├── aggregation.ts    # 每日聚合计算
+│   │   ├── funnel.ts         # 漏斗计算引擎
+│   │   ├── query-builder.ts  # 分析查询构建
+│   │   ├── embed.ts          # 嵌入脚本生成
 │   │   └── ...
 │   └── utils/
-│       ├── user-agent.ts     # Browser / OS detection
-│       ├── utm.ts            # UTM parameter extraction
-│       └── prisma.ts         # Prisma client singleton
+│       ├── user-agent.ts     # 浏览器 / 操作系统检测
+│       ├── utm.ts            # UTM 参数提取
+│       └── prisma.ts         # Prisma Client 单例
 ├── sdk/
-│   ├── src/index.ts          # Client-side tracking SDK
-│   ├── package.json          # SDK build config
-│   ├── rollup.config.js      # Bundle config (UMD + ESM)
-│   └── embed.html            # Embed demo page
+│   ├── src/index.ts          # 客户端追踪 SDK
+│   ├── package.json          # SDK 构建配置
+│   ├── rollup.config.js      # 打包配置（UMD + ESM）
+│   └── embed.html            # 嵌入演示页面
 ├── prisma/
-│   └── schema.prisma         # Database schema
-├── Dockerfile                # Multi-stage production build
-├── docker-compose.yml        # App + PostgreSQL services
-├── vitest.config.ts          # Test configuration
+│   └── schema.prisma         # 数据库 Schema
+├── Dockerfile                # 多阶段生产构建
+├── docker-compose.yml        # 应用 + PostgreSQL 服务
+├── vitest.config.ts          # 测试配置
 └── package.json
 ```
 
-## Testing
+## 测试
 
 ```bash
-# Run all tests
+# 运行所有测试
 npm test
 
-# Run tests in watch mode
+# 监听模式运行测试
 npm run test:watch
 
-# Run end-to-end tests
+# 运行端到端测试
 npm run test:e2e
 ```
 
-## Environment Variables
+## 环境变量
 
-| Variable | Description | Default |
-|---|---|---|
-| `DATABASE_URL` | Database connection string | `file:./dev.db` |
-| `JWT_SECRET` | Secret for JWT signing | dev fallback |
-| `PORT` | Server port | `3000` |
-| `NODE_ENV` | Environment | `development` |
+| 变量 | 描述 | 默认值 |
+|------|------|--------|
+| `DATABASE_URL` | 数据库连接字符串 | `file:./dev.db` |
+| `JWT_SECRET` | JWT 签名密钥 | 开发回退值 |
+| `PORT` | 服务端口 | `3000` |
+| `NODE_ENV` | 运行环境 | `development` |
 
-See `.env.example` for a full template.
+完整模板请查看 `.env.example`。
 
-## License
+## 许可证
 
 MIT
