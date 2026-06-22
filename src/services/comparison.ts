@@ -19,10 +19,7 @@ export function calculateChangePercentage(current: number, previous: number): nu
   return Number((((current - previous) / previous) * 100).toFixed(2));
 }
 
-export function buildComparisonResult<T extends Record<string, number>>(
-  currentData: T,
-  previousData: T
-): ComparisonResult<T> {
+export function buildComparisonResult<T extends Record<string, number>>(currentData: T, previousData: T): { current: T; previous: T; change: Record<string, number>; changePercentage: Record<string, number> } {
   const keys = Object.keys(currentData) as (keyof T)[];
   const change: Record<string, number> = {};
   const changePercentage: Record<string, number> = {};
@@ -37,8 +34,8 @@ export function buildComparisonResult<T extends Record<string, number>>(
   return {
     current: currentData,
     previous: previousData,
-    change: change as unknown as T,
-    changePercentage: changePercentage as unknown as T,
+    change: change,
+    changePercentage: changePercentage,
   };
 }
 
