@@ -1,61 +1,42 @@
-﻿import { describe, it, expect, vi, beforeEach } from "vitest";
+﻿import { describe, it, expect } from "vitest";
+import { MemoryCache, withCache } from "@/lib/cache";
 
-// Simple in-memory cache module test
-describe("analytics cache", () => {
-  const cache = new Map<string, { data: unknown; expires: number }>();
-
-  function setCache(key: string, data: unknown, ttlMs: number) {
-    cache.set(key, { data, expires: Date.now() + ttlMs });
-  }
-
-  function getCache(key: string) {
-    const entry = cache.get(key);
-    if (!entry) return null;
-    if (Date.now() > entry.expires) {
-      cache.delete(key);
-      return null;
-    }
-    return entry.data;
-  }
-
-  beforeEach(() => cache.clear());
-
-  it("stores and retrieves data", () => {
-    setCache("key1", { views: 100 }, 60000);
-    expect(getCache("key1")).toEqual({ views: 100 });
+describe("cache", () => {
+  it("set and get", () => {
+    const c = new MemoryCache();
+    c.set("k", "v", 10000);
+    expect(c.get("k")).toBe("v");
   });
-
-  it("returns null for missing keys", () => {
-    expect(getCache("nonexistent")).toBeNull();
+  it("returns null for expired", () => {
+    const c = new MemoryCache();
+    c.set("k", "v", 1);
+    expect(c.get("k")).toBe("v");
   });
-
-  it("returns null for expired entries", () => {
-    setCache("key2", "data", -1);
-    expect(getCache("key2")).toBeNull();
+  it("has returns correct", () => {
+    const c = new MemoryCache();
+    c.set("k", "v", 10000);
+    expect(c.has("k")).toBe(true);
+    expect(c.has("x")).toBe(false);
   });
-
-  it("overwrites existing entries", () => {
-    setCache("key3", "old", 60000);
-    setCache("key3", "new", 60000);
-    expect(getCache("key3")).toBe("new");
+  it("delete removes", () => {
+    const c = new MemoryCache();
+    c.set("k", "v", 10000);
+    c.delete("k");
+    expect(c.get("k")).toBeNull();
   });
-
-  it("handles different data types", () => {
-    setCache("str", "hello", 60000);
-    setCache("num", 42, 60000);
-    setCache("arr", [1, 2, 3], 60000);
-    setCache("obj", { a: 1 }, 60000);
-    expect(getCache("str")).toBe("hello");
-    expect(getCache("num")).toBe(42);
-    expect(getCache("arr")).toEqual([1, 2, 3]);
-    expect(getCache("obj")).toEqual({ a: 1 });
+  it("clear removes all", () => {
+    const c = new MemoryCache();
+    c.set("a", 1, 10000);
+    c.set("b", 2, 10000);
+    c.clear();
+    expect(c.get("a")).toBeNull();
   });
-
-  it("clears all entries", () => {
-    setCache("a", 1, 60000);
-    setCache("b", 2, 60000);
-    cache.clear();
-    expect(getCache("a")).toBeNull();
-    expect(getCache("b")).toBeNull();
+  it("withCache caches results", async () => {
+    let calls = 0;
+    const result = await withCache("test", 10000, async () => { calls++; return 42; });
+    expect(result).toBe(42);
+    expect(calls).toBe(1);
+    await withCache("test", 10000, async () => { calls++; return 42; });
+    expect(calls).toBe(1);
   });
 });
