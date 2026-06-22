@@ -37,8 +37,8 @@ export function buildComparisonResult<T extends Record<string, number>>(
   return {
     current: currentData,
     previous: previousData,
-    change: change as T,
-    changePercentage: changePercentage as T,
+    change: change as unknown as T,
+    changePercentage: changePercentage as unknown as T,
   };
 }
 
