@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -6,6 +6,8 @@ import compression from "compression";
 import collectRouter from "./routes/collect";
 import healthRouter from "./routes/health";
 import { globalLimiter, eventLimiter } from "./middleware/rate-limit";
+import { requestLogger } from "./middleware/request-logger";
+import { errorHandler } from "./middleware/error-handler";
 
 export function createApp(): express.Application {
   const app = express();
@@ -25,6 +27,7 @@ export function createApp(): express.Application {
   }));
   app.use(compression());
   app.use(morgan("combined"));
+  app.use(requestLogger);
 
   // Body parsing
   app.use(express.json({ limit: "10kb" }));
@@ -44,17 +47,7 @@ export function createApp(): express.Application {
   });
 
   // Error handler
-  app.use(
-    (
-      err: Error,
-      _req: express.Request,
-      res: express.Response,
-      _next: express.NextFunction
-    ) => {
-      console.error("Unhandled error:", err.message);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  );
+  app.use(errorHandler);
 
   return app;
 }
