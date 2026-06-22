@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Plausible — Embed Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1a1a2e; background: #f8f9fa; padding: 2rem; max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin-top: 2rem; margin-bottom: 0.5rem; color: #4a4a6a; }
+    p { margin-bottom: 1rem; color: #555; }
+    code { background: #e9ecef; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+    pre { background: #1a1a2e; color: #e0e0e0; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; font-size: 0.85rem; line-height: 1.5; }
+    pre code { background: none; padding: 0; color: inherit; }
+    .badge { display: inline-block; background: #6c63ff; color: #fff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-bottom: 1rem; }
+    .section { background: #fff; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    button { background: #6c63ff; color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; margin-right: 0.5rem; }
+    button:hover { background: #5a52d5; }
+  </style>
+</head>
+<body>
+  <span class="badge">Privacy-First Analytics</span>
+  <h1>Mini Plausible — Embed Demo</h1>
+  <p>This page demonstrates how to integrate the Mini Plausible tracking SDK into your website.</p>
+
+  <div class="section">
+    <h2>1. Basic Script Tag</h2>
+    <p>Add this snippet before <code>&lt;/body&gt;</code>:</p>
+    <pre><code>&lt;script
+  defer
+  data-domain="yourdomain.com"
+  data-api-endpoint="https://analytics.example.com/api/event"
+  src="https://analytics.example.com/tracker.js"
+&gt;&lt;/script&gt;</code></pre>
+  </div>
+
+  <div class="section">
+    <h2>2. Inline Script (No External File)</h2>
+    <pre><code>&lt;script&gt;
+  (function() {
+    var API = '/api/event';
+    var SITE = 'yourdomain.com';
+
+    function track(name, props) {
+      var payload = {
+        n: name,
+        u: location.href,
+        d: localStorage.getItem('mp_did') || crypto.randomUUID(),
+        r: document.referrer,
+        sw: screen.width,
+        sh: screen.height,
+        tp: screen.width &lt;= 600 ? 'mobile' : 'desktop',
+        timestamp: Date.now()
+      };
+      if (props) payload.props = props;
+      navigator.sendBeacon(API, new Blob([JSON.stringify(payload)], {type:'application/json'}));
+    }
+
+    track('pageview');
+    window.plausible = track;
+  })();
+&lt;/script&gt;</code></pre>
+  </div>
+
+  <div class="section">
+    <h2>3. Custom Event Tracking</h2>
+    <p>Fire custom events with optional properties:</p>
+    <button onclick="window.plausible &amp;&amp; window.plausible('Signup', { props: { plan: 'pro' } })">Track Signup</button>
+    <button onclick="window.plausible &amp;&amp; window.plausible('Purchase', { props: { amount: 49.99, currency: 'USD' } })">Track Purchase</button>
+    <button onclick="window.plausible &amp;&amp; window.plausible('Outbound Link', { props: { url: 'https://example.com' } })">Track Outbound Link</button>
+  </div>
+
+  <div class="section">
+    <h2>4. Auto-Initialize</h2>
+    <p>The SDK auto-detects <code>data-*</code> attributes from the script tag and initializes itself. No manual setup needed.</p>
+    <pre><code>&lt;script
+  defer
+  data-domain="myapp.com"
+  data-api-endpoint="https://analytics.myapp.com/api/event"
+  data-hash-mode="false"
+  src="/tracker.js"
+&gt;&lt;/script&gt;</code></pre>
+  </div>
+
+  <div class="section">
+    <h2>Features</h2>
+    <ul style="padding-left:1.2rem;color:#555;">
+      <li>Auto pageview tracking on page load</li>
+      <li>UTM parameter extraction</li>
+      <li>Device ID persistence via localStorage</li>
+      <li>Event batching for network efficiency</li>
+      <li>sendBeacon with XMLHttpRequest fallback</li>
+      <li>Outbound link &amp; custom event support</li>
+      <li>Privacy-first: no cookies, GDPR compliant</li>
+    </ul>
+  </div>
+</body>
+</html>

@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+  
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String       @id @default(uuid())
+  email     String       @unique
+  name      String?
+  password  String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  sites     Site[]
+  memberships SiteMember[]
+  funnels     Funnel[]
+}
+
+model Site {
+  id        String       @id @default(uuid())
+  name      String
+  domain    String
+  timezone  String       @default("UTC")
+  userId    String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  user      User         @relation(fields: [userId], references: [id])
+  events    Event[]
+  eventDefs   EventDefinition[]
+  pageviews   Pageview[]
+  funnels     Funnel[]
+  members   SiteMember[]
+}
+
+model SiteMember {
+  id     String @id @default(uuid())
+  siteId String
+  userId String
+  role   String @default("viewer")
+  site   Site   @relation(fields: [siteId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  siteId      String
+  name        String
+  url         String
+  referrer    String?
+  screenWidth Int?
+  screenHeight Int?
+  browser     String?
+  os          String?
+  country     String?
+  city        String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  deviceId    String?
+  sessionId   String?
+  props       String   @default("{}")
+  createdAt   DateTime @default(now())
+  site        Site     @relation(fields: [siteId], references: [id])
+
+  @@index([siteId, createdAt])
+  @@index([siteId, name])
+}
+
+model DailyAggregate {
+  id          String   @id @default(uuid())
+  siteId      String
+  date        DateTime
+  pageviews   Int      @default(0)
+  visitors    Int      @default(0)
+  sessions    Int      @default(0)
+  bounceRate  Float    @default(0)
+  avgDuration Float    @default(0)
+  topPages    String   @default("[]")
+  topSources  String   @default("[]")
+  countries   String   @default("[]")
+  browsers    String   @default("[]")
+  devices     String   @default("[]")
+
+  @@unique([siteId, date])
+}
+
+model Session {
+  id          String   @id @default(uuid())
+  siteId      String
+  deviceId    String
+  firstVisit  DateTime @default(now())
+  lastSeen    DateTime @default(now())
+  pagesViewed String   @default("[]")
+  referrer    String?
+  browser     String?
+  os          String?
+  country     String?
+  city        String?
+  screenWidth Int?
+  screenHeight Int?
+
+  @@index([siteId, lastSeen])
+  @@index([siteId, deviceId])
+}
+model EventDefinition {
+  id               String   @id @default(uuid())
+  siteId           String
+  name             String
+  propertiesSchema String   @default("{}")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  site             Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, name])
+  @@map("event_definitions")
+}
+
+model Pageview {
+  id         String    @id @default(uuid())
+  siteId     String
+  url        String
+  referrer   String?
+  userId     String?
+  sessionId  String?
+  browser    String?
+  os         String?
+  country    String?
+  device     String?
+  duration   Int?
+  createdAt  DateTime  @default(now())
+  site       Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, createdAt])
+  @@index([sessionId])
+  @@map("pageviews")
+}
+
+model Funnel {
+  id        String   @id @default(uuid())
+  siteId    String
+  name      String
+  steps     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("funnels")
+}

@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: mini-plausible-api
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=file:./data/prod.db
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - PORT=3001
+      - NODE_ENV=production
+    volumes:
+      - app-data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  db:
+    image: postgres:16-alpine
+    container_name: mini-plausible-db
+    environment:
+      POSTGRES_DB: mini_plausible
+      POSTGRES_USER: plausible
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-plausible_dev}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plausible -d mini_plausible"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  app-data:
+    driver: local
+  pg-data:
+    driver: local
