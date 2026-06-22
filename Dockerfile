@@ -28,11 +28,9 @@ RUN apt-get update -y && apt-get install -y openssl dumb-init && rm -rf /var/lib
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
-# Generate Prisma client for production
-RUN npx prisma generate
-
-# Copy Prisma schema, generated client, and migrations
+# Copy Prisma schema and generate client
 COPY prisma ./prisma/
+RUN npx prisma generate
 
 # Copy built JS
 COPY --from=builder /app/dist ./dist
